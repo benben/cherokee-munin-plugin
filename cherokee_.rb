@@ -12,10 +12,19 @@ else
 end
 
 if ARGV[0] == "config"
+  puts "graph_category Cherokee"
   puts "graph_title #{TYPE.capitalize} for #{HOST}"
   puts "graph_vlabel #{TYPE}"
-  puts "#{TYPE}.label #{TYPE}"
-  puts "#{TYPE}.type COUNTER"
+  if TYPE == "traffic"
+    puts "tx.label tx"
+    puts "tx.type COUNTER"
+    puts "rx.label rx"
+    puts "rx.type COUNTER"
+  elsif TYPE == "connections"
+    puts "number.label number"
+    puts "active.label active"
+    puts "reusable.label reusable"
+  end
 else
   begin
     url = URI.parse("http://#{HOST}")
@@ -23,8 +32,14 @@ else
       http.get("/status/ruby/info")
     }
     res = eval res.body
-    puts "#{TYPE}.value #{res["traffic"]["tx"]}"
-    #puts res["traffic"]["rx"]
+    if TYPE == "traffic"
+      puts "tx.value #{res["traffic"]["tx"]}"
+      puts "rx.value #{res["traffic"]["rx"]}"
+    elsif TYPE == "connections"
+      puts "number.value #{res["connections"]["number"]}"
+      puts "active.value #{res["connections"]["active"]}"
+      puts "reusable.value #{res["connections"]["reusable"]}"
+    end
   rescue Exception => e
     puts e
     exit -1
